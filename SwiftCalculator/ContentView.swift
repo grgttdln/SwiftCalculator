@@ -10,9 +10,75 @@ import SwiftUI
 class GlobalEnvironment: ObservableObject   {
     
     @Published var display = ""
+    var fNum = 0.0
+    var sNum = 0.0
+    var operation = ""
+    var isEqual = false
     
     func receiveInput(calcBtn: CalculatorButton) {
-        self.display = calcBtn.title
+        
+        let operators: [String] = ["/", "X", "-", "+", "="]
+        
+        if calcBtn.title == "AC" {
+            fNum = 0.0
+            sNum = 0.0
+            operation = ""
+            display = ""
+            isEqual = false
+        }
+        else if calcBtn.title == "%" {
+            fNum = Double(display) ?? 0.0
+            fNum /= 100
+            display = "\(fNum)"
+
+        } else if calcBtn.title == "+/-" {
+            fNum = Double(display) ?? 0.0
+            fNum *= -1
+            display = "\(fNum)"
+        } else {
+            if operators.contains(calcBtn.title) {
+                
+                if calcBtn.title == "=" && !operation.isEmpty {
+                    sNum = Double(display) ?? 0.0
+                    switch operation {
+                    case "X":
+                        fNum *= sNum
+                        display = "\(fNum)"
+                    case "+":
+                        fNum += sNum
+                        display = "\(fNum)"
+                    case "-":
+                        fNum -= sNum
+                        display = "\(fNum)"
+                    case "/":
+                        if sNum != 0 {
+                            fNum /= sNum
+                            display = "\(fNum)"
+                        } else {
+                            display = "Error"
+                        }
+                    default:
+                        display = "0"
+                    }
+                    
+                    isEqual = true
+                }
+                else {
+                    fNum = Double(display) ?? 0.0
+                    operation = calcBtn.title
+                    display = ""
+                }
+            } else {
+                if isEqual {
+                    self.display = calcBtn.title
+                    isEqual = false
+                } else {
+                    self.display += calcBtn.title
+                }
+                
+               
+            }
+        }
     }
     
 }
@@ -131,18 +197,11 @@ struct ContentView: View {
                                     .background(button.bgColor)
                                     .cornerRadius(self.btnWidth(button: button))
                             }
-                            
-                                
-                           
                         }
                     }
                 }
             }.padding(.bottom)
         }
-        
-        
-        
-        
     }
     
     
